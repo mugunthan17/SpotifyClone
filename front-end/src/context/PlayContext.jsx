@@ -94,31 +94,27 @@ const PlayerContextProvider = (props) => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    if (audioRef.current) {
       audioRef.current.ontimeupdate = () => {
-        seekBar.current.style.width =
-          Math.floor(
-            (audioRef.current.currentTime / audioRef.current.duration) * 100
-          ) + "%";
-
-        const currentSeconds = Math.floor(audioRef.current.currentTime % 60);
-        const currentMinutes = Math.floor(audioRef.current.currentTime / 60);
-        const totalSeconds = Math.floor(audioRef.current.duration % 60);
-        const totalMinutes = Math.floor(audioRef.current.duration / 60);
-
         setTime({
           currentTime: {
-            second: currentSeconds.toString().padStart(2, "0"), // Pad with 0
-            minute: currentMinutes.toString().padStart(2, "0"), // Pad with 0
+            second: String(Math.floor(audioRef.current.currentTime % 60)).padStart(2, "0"),
+            minute: String(Math.floor(audioRef.current.currentTime / 60)).padStart(2, "0"),
           },
           totalTime: {
-            second: totalSeconds.toString().padStart(2, "0"), // Pad with 0
-            minute: totalMinutes.toString().padStart(2, "0"), // Pad with 0
+            second: String(Math.floor(audioRef.current.duration % 60) || 0).padStart(2, "0"),
+            minute: String(Math.floor(audioRef.current.duration / 60) || 0).padStart(2, "0"),
           },
         });
+  
+        // Update seek bar width dynamically
+        if (seekBar.current && seekBg.current) {
+          const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+          seekBar.current.style.width = `${progress}%`;
+        }
       };
-    }, 1000);
-  }, [audioRef]);
+    }
+  }, [track]);
 
   useEffect(() => {
     getSongsData();
